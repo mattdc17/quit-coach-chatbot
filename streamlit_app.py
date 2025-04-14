@@ -26,7 +26,7 @@ if prompt := st.chat_input("How can I support you today?"):
     with st.spinner("Thinking..."):
         try:
             response = openai.ChatCompletion.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=st.session_state.messages,
                 temperature=0.8,
             )
