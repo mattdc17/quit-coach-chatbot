@@ -4,7 +4,7 @@ import openai
 st.set_page_config(page_title="Quit Coach", layout="centered")
 
 st.title("💬 Quit Coach")
-st.markdown("Quit Coach is here to support you through cravings, doubt, sleep issues, and everything in between.")
+st.markdown("How Can I Support You Today?")
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -17,7 +17,8 @@ if "messages" not in st.session_state:
     )}]
 
 for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).markdown(msg["content"])
+    if msg["role"] != "system":  # Don't show system messages to the user
+        st.chat_message(msg["role"]).markdown(msg["content"])
 
 if prompt := st.chat_input("How can I support you today?"):
     st.chat_message("user").markdown(prompt)
