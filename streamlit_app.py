@@ -1,4 +1,4 @@
-# Quit Coach v1.5.1 — Logs feedback and auto-tags themes (Apr 2025)
+# Quit Coach v1.5.2 — Clean ASCII version (final fix)
 
 import streamlit as st
 import openai
@@ -13,11 +13,9 @@ from quitkit_tone_and_rules import tone_and_rules
 
 st.set_page_config(page_title="Quit Coach", layout="centered")
 st.title("💬 Quit Coach")
-st.caption("Quit Coach v1.5.1 — Feedback & theme tracking enabled")
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# CSV file to store feedback
 LOG_FILE = "quit_coach_feedback_log.csv"
 if not os.path.exists(LOG_FILE):
     with open(LOG_FILE, "w", newline="") as f:
@@ -41,7 +39,6 @@ def detect_theme(text):
     else:
         return "other"
 
-# Quit Kit overview
 quitkit_overview = """
 Quit Kit is a targeted, three-dose daily supplement regimen designed to support individuals transitioning away from kratom and opioid dependence.
 
@@ -57,9 +54,24 @@ Dosing schedule:
 - Nighttime Dose: 30–60 minutes before bed — relaxation and sleep
 """
 
-# Initialize system prompt and welcome message
+rotating_tips = [
+    "Creating a personalized plan to quit",
+    "Understanding what's in the Quit Kit",
+    "Learning how the Quit Kit ingredients actually work",
+    "Making a tapering strategy that fits your life",
+    "Getting through cravings when they hit hardest",
+    "Building a night routine that actually helps with sleep",
+    "Dealing with guilt after slipping up",
+    "Staying motivated when you feel stuck",
+    "Talking to a loved one about your struggle",
+    "Turning daily habits into relapse protection",
+    "Celebrating small wins so you stay consistent",
+    "Learning how to manage withdrawal anxiety"
+]
+
 if "messages" not in st.session_state:
     selected_testimonials = "\n".join(random.sample(testimonials, 3))
+    welcome_tips = random.sample(rotating_tips, 4)
     system_prompt = f"""
 You are Quit Coach, a supportive, grounded chatbot trained by the creator of the Quit Kit.
 You focus on kratom and opioid withdrawal. You blend grounded encouragement with CBT structure and positive psychology.
@@ -76,14 +88,19 @@ Here is the verified ingredient list by dose:
 Here are real, unedited testimonials:
 {selected_testimonials}
 
-Never ask the user if they’ve heard of the Quit Kit — assume they know.
+Never ask the user if they've heard of the Quit Kit - assume they know.
 Only reference ingredients found in the quitkit_ingredients.py file.
 If unsure about an ingredient, say so clearly.
 Start every conversation by asking what drug the user is trying to quit.
 Always follow advice with a concrete, real-life example.
 Offer a plan or action the user could take today.
-Keep the conversation going until the user says they’re done.
-Mention the Quit Kit within the first few responses and relate its structure or ingredients back to the user’s pain points regularly.
+Keep the conversation going until the user says they're done.
+Mention the Quit Kit within the first few responses and relate its structure or ingredients back to the user's pain points regularly.
+If someone asks how the chatbot works, assume they mean you, not the Quit Kit.
+If someone asks about ingredients, always show the full list.
+If someone asks about shipping, note that economy shipping is free and expedited options are available.
+If someone asks if Quit Kit will work for them, mention it comes with a money-back guarantee.
+If someone asks about mixing Quit Kit with medications, check for serious interactions first. If none are known, state that and gently suggest checking with a doctor.
 """
     st.session_state["messages"] = [{"role": "system", "content": system_prompt}]
     st.session_state["last_prompt"] = ""
@@ -91,19 +108,17 @@ Mention the Quit Kit within the first few responses and relate its structure or 
 
     st.session_state["messages"].append({
         "role": "assistant",
-        "content": (
-    "Hey there — I’m Quit Coach, here to support you every step of the way.\n\n"
-    "Here are a few things I can help with:\n"
-    "- Creating a personalized plan to quit\n"
-    "- Understanding what's in the Quit Kit and how it works\n"
-    "- Making a tapering strategy that fits your life\n"
-    "- Supporting you through cravings, sleep issues, or doubt\n\n"
-    "To get started, can you tell me what substance you're trying to quit?"
-)
+        "content": f"""Hey there - I'm Quit Coach, here to support you every step of the way.
 
+Here are a few things I can help with:
+- {welcome_tips[0]}
+- {welcome_tips[1]}
+- {welcome_tips[2]}
+- {welcome_tips[3]}
+
+To get started, can you tell me what substance you're trying to quit?"""
     })
 
-# Show chat messages
 for i, msg in enumerate(st.session_state.messages):
     if msg["role"] != "system":
         st.chat_message(msg["role"]).markdown(msg["content"])
@@ -121,9 +136,8 @@ for i, msg in enumerate(st.session_state.messages):
                         with open(LOG_FILE, "a", newline="") as f:
                             writer = csv.writer(f)
                             writer.writerow([datetime.now(), st.session_state["last_prompt"], st.session_state["last_reply"], "no", detect_theme(st.session_state["last_prompt"])])
-                        st.warning("Thanks — we’ll learn from this.")
+                        st.warning("Thanks - we'll learn from this.")
 
-# Handle new user prompt
 if prompt := st.chat_input("How can I support you today?"):
     st.chat_message("user").markdown(prompt)
     st.session_state["last_prompt"] = prompt
