@@ -15,19 +15,17 @@ st.caption("Quit Coach v1.4 — Last updated August 2025")
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Structured overview of Quit Kit function and schedule
-quitkit_overview = (
-    "Quit Kit is a targeted, three-dose daily supplement regimen designed to support individuals transitioning away from kratom and opioid dependence. "
-    "Formulated with 12 clinically studied, non-prescription compounds, it helps restore balance to the brain and body during withdrawal by replenishing key neurotransmitters, reducing cravings, stabilizing mood, and promoting restorative sleep. "
-    "The Quit Kit consists of three daily doses, each taken as a 3-capsule serving:
+quitkit_overview = """
+Quit Kit is a targeted, three-dose daily supplement regimen designed to support individuals transitioning away from kratom and opioid dependence.
+Formulated with 12 clinically studied, non-prescription compounds, it helps restore balance to the brain and body during withdrawal by replenishing key neurotransmitters, reducing cravings, stabilizing mood, and promoting restorative sleep.
 
-"
-    "- Morning Dose: Taken upon waking, supports cognitive function and energy.
-"
-    "- Afternoon Dose: Taken 5–6 hours after the morning dose, helps manage stress and neurotransmitter balance.
-"
-    "- Nighttime Dose: Taken 30–60 minutes before bed, aids in relaxation and sleep quality.
-"
-)
+The Quit Kit consists of three daily doses, each taken as a 3-capsule serving:
+
+- Morning Dose: Taken upon waking, supports cognitive function and energy.
+- Afternoon Dose: Taken 5–6 hours after the morning dose, helps manage stress and neurotransmitter balance.
+- Nighttime Dose: Taken 30–60 minutes before bed, aids in relaxation and sleep quality.
+"""
+
 
 # Initialize chat session
 if "messages" not in st.session_state:
