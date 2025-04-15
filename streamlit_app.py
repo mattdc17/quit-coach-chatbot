@@ -1,4 +1,4 @@
-# Quit Coach v1.4 — Strict ingredient reference, deep dive option, QK structure included (Aug 2025)
+# Quit Coach v1.4.1 — Strict ingredient enforcement, session cache reset reminder (Apr 2025)
 
 import streamlit as st
 import openai
@@ -10,47 +10,54 @@ from quitkit_tone_and_rules import tone_and_rules
 
 st.set_page_config(page_title="Quit Coach", layout="centered")
 st.title("💬 Quit Coach")
-st.caption("Quit Coach v1.4 — Last updated August 2025")
+st.caption("Quit Coach v1.4.1 — Last updated April 2025")
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# Structured overview of Quit Kit function and schedule
+# Hardcoded overview of schedule and purpose
 quitkit_overview = """
 Quit Kit is a targeted, three-dose daily supplement regimen designed to support individuals transitioning away from kratom and opioid dependence.
-Formulated with 12 clinically studied, non-prescription compounds, it helps restore balance to the brain and body during withdrawal by replenishing key neurotransmitters, reducing cravings, stabilizing mood, and promoting restorative sleep.
 
-The Quit Kit consists of three daily doses, each taken as a 3-capsule serving:
+It helps restore balance to the brain and body by:
+- Replenishing neurotransmitters
+- Reducing cravings
+- Stabilizing mood
+- Promoting restorative sleep
 
-- Morning Dose: Taken upon waking, supports cognitive function and energy.
-- Afternoon Dose: Taken 5–6 hours after the morning dose, helps manage stress and neurotransmitter balance.
-- Nighttime Dose: Taken 30–60 minutes before bed, aids in relaxation and sleep quality.
+Dosing schedule:
+- Morning Dose: Upon waking — energy, cognition, mood
+- Afternoon Dose: 5–6 hours later — stress, cravings, neurotransmitter support
+- Nighttime Dose: 30–60 minutes before bed — relaxation and sleep
 """
 
+# Initialize new session (clearing cache if needed)
+if st.button("🔄 Reset Conversation"):
+    st.session_state.clear()
 
-# Initialize chat session
 if "messages" not in st.session_state:
     selected_testimonials = "\n".join(random.sample(testimonials, 3))
     system_prompt = (
         "You are Quit Coach, a supportive, grounded chatbot trained by the creator of the Quit Kit. "
         "You focus on kratom and opioid withdrawal. You blend grounded encouragement with CBT structure and positive psychology.\n\n"
         f"Here are your tone and behavior rules: {tone_and_rules}\n\n"
-        f"Here is the Quit Kit daily structure and science: {quitkit_overview}\n\n"
+        f"Here is the Quit Kit daily schedule and purpose: {quitkit_overview}\n\n"
         f"Here is the verified ingredient list by dose: {quitkit_ingredients}\n\n"
         f"Here are real, unedited testimonials: {selected_testimonials}\n\n"
-        "Start every conversation by asking what drug or substance the user is trying to quit. Do not offer advice until this is known. "
-        "Do not reference any ingredients not found in the uploaded list. "
-        "Always follow suggestions with a deeper question or offer to personalize. "
-        "Mention the Quit Kit naturally within the first few responses, and bring it back every few messages when relevant. "
-        "If the user asks about the Quit Kit ingredients, offer to give a scientific deep dive into how they help with withdrawal."
+        "Only reference ingredients found in the quitkit_ingredients.py file. Do not infer or add any other substances. "
+        "If you are unsure whether something is included, say so clearly. "
+        "Start every conversation by asking what drug the user is trying to quit. "
+        "When asked about ingredients, offer a deep dive into their science. "
+        "Refer to the Quit Kit’s three-dose schedule when users ask how to take it. "
+        "Do not close the conversation unless the user says so."
     )
     st.session_state["messages"] = [{"role": "system", "content": system_prompt}]
 
-# Display conversation history
+# Display prior conversation
 for msg in st.session_state.messages:
     if msg["role"] != "system":
         st.chat_message(msg["role"]).markdown(msg["content"])
 
-# Chat input
+# Chat input field
 if prompt := st.chat_input("What’s on your mind?"):
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
