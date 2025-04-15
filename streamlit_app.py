@@ -47,6 +47,3 @@ if prompt := st.chat_input("What’s on your mind?"):
             reply = f"Something went wrong: {e}"
     st.chat_message("assistant").markdown(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
-from quitkit_ingredients import quitkit_ingredients
-from testimonials import testimonials
-from quitkit_tone_and_rules import tone_and_rules
