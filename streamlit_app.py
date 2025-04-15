@@ -30,9 +30,6 @@ Dosing schedule:
 - Nighttime Dose: 30–60 minutes before bed — relaxation and sleep
 """
 
-# Initialize new session (clearing cache if needed)
-if st.button("🔄 Reset Conversation"):
-    st.session_state.clear()
 
 if "messages" not in st.session_state:
     selected_testimonials = "\n".join(random.sample(testimonials, 3))
