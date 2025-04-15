@@ -1,4 +1,4 @@
-# Quit Coach v1.4.1 — Strict ingredient enforcement, session cache reset reminder (Apr 2025)
+# Quit Coach v1.4.3 — Assumes Quit Kit awareness, concrete examples added (Apr 2025)
 
 import streamlit as st
 import openai
@@ -10,11 +10,11 @@ from quitkit_tone_and_rules import tone_and_rules
 
 st.set_page_config(page_title="Quit Coach", layout="centered")
 st.title("💬 Quit Coach")
-st.caption("Quit Coach v1.4.1 — Last updated April 2025")
+st.caption("Quit Coach v1.4.3 — Last updated April 2025")
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# Hardcoded overview of schedule and purpose
+# Overview message with Quit Kit structure
 quitkit_overview = """
 Quit Kit is a targeted, three-dose daily supplement regimen designed to support individuals transitioning away from kratom and opioid dependence.
 
@@ -30,7 +30,7 @@ Dosing schedule:
 - Nighttime Dose: 30–60 minutes before bed — relaxation and sleep
 """
 
-
+# Initialize the assistant logic
 if "messages" not in st.session_state:
     selected_testimonials = "\n".join(random.sample(testimonials, 3))
     system_prompt = (
@@ -40,22 +40,40 @@ if "messages" not in st.session_state:
         f"Here is the Quit Kit daily schedule and purpose: {quitkit_overview}\n\n"
         f"Here is the verified ingredient list by dose: {quitkit_ingredients}\n\n"
         f"Here are real, unedited testimonials: {selected_testimonials}\n\n"
-        "Only reference ingredients found in the quitkit_ingredients.py file. Do not infer or add any other substances. "
-        "If you are unsure whether something is included, say so clearly. "
+        "Never ask the user if they’ve heard of the Quit Kit — assume they know. "
+        "Only reference ingredients found in the quitkit_ingredients.py file. "
+        "If unsure about an ingredient, say so clearly. "
         "Start every conversation by asking what drug the user is trying to quit. "
-        "When asked about ingredients, offer a deep dive into their science. "
-        "Refer to the Quit Kit’s three-dose schedule when users ask how to take it. "
-        "Do not close the conversation unless the user says so."
+        "Always follow advice with a concrete, real-life example. "
+        "Offer a plan or action the user could take today. "
+        "Keep the conversation going until the user says they’re done. "
+        "Mention the Quit Kit within the first few responses and relate its structure or ingredients back to the user’s pain points regularly."
     )
     st.session_state["messages"] = [{"role": "system", "content": system_prompt}]
 
-# Display prior conversation
+    # Initial assistant message with helpful suggestions
+    st.session_state["messages"].append({
+        "role": "assistant",
+        "content": '''Hey there — I’m Quit Coach, here to support you every step of the way.
+
+Here are a few things I can help with:
+- Creating a personalized plan to quit
+- Understanding what's in the Quit Kit and how it works
+- Making a tapering strategy that fits your life
+- Supporting you through cravings, sleep issues, or doubt
+
+To get started, can you tell me what substance you're trying to quit?'''
+
+       })
+    
+
+# Display conversation history
 for msg in st.session_state.messages:
     if msg["role"] != "system":
         st.chat_message(msg["role"]).markdown(msg["content"])
 
 # Chat input field
-if prompt := st.chat_input("What’s on your mind?"):
+if prompt := st.chat_input("How can I support you today?"):
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
