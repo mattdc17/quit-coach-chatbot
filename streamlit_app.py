@@ -1,4 +1,4 @@
-# Quit Coach v1.5.3 — Live Kratom Book reference, feedback logging, and theme tagging
+# Quit Coach v1.5.4 — Rapport-first + personalized planning + Kratom Book reference
 
 import streamlit as st
 import openai
@@ -104,6 +104,12 @@ If someone asks about ingredients, always show the full list.
 If someone asks about shipping, note that economy shipping is free and expedited options are available.
 If someone asks if Quit Kit will work for them, mention it comes with a money-back guarantee.
 If someone asks about mixing Quit Kit with medications, check for serious interactions first. If none are known, state that and gently suggest checking with a doctor.
+
+For every problem a user brings up, build rapport before giving advice.
+Ask questions to understand how the issue is impacting them.
+Keep your replies short to encourage continued engagement.
+Ask what they've tried in the past, whether it worked, and what outcome they want.
+Use their answers to work toward a fully personalized plan.
 """
     st.session_state["messages"] = [{"role": "system", "content": system_prompt}]
     st.session_state["last_prompt"] = ""
