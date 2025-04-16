@@ -1,4 +1,4 @@
-# Quit Coach v1.5.2 — Clean ASCII version (final fix)
+# Quit Coach v1.5.3 — Live Kratom Book reference, feedback logging, and theme tagging
 
 import streamlit as st
 import openai
@@ -6,7 +6,7 @@ import random
 import csv
 import os
 from datetime import datetime
-
+from kratom_book import kratom_book_text
 from quitkit_ingredients import quitkit_ingredients
 from testimonials import testimonials
 from quitkit_tone_and_rules import tone_and_rules
@@ -87,6 +87,9 @@ Here is the verified ingredient list by dose:
 
 Here are real, unedited testimonials:
 {selected_testimonials}
+
+Use the following document as a foundation for your language, motivation, and advice:
+{kratom_book_text[:3000]}...
 
 Never ask the user if they've heard of the Quit Kit - assume they know.
 Only reference ingredients found in the quitkit_ingredients.py file.
