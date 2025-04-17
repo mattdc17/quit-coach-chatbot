@@ -1,4 +1,4 @@
-# Quit Coach v1.5.4 — Rapport-first + personalized planning + Kratom Book reference
+# Quit Coach v1.5.7 — Final full integration with personal_responses.py
 
 import streamlit as st
 import openai
@@ -10,6 +10,7 @@ from kratom_book import kratom_book_text
 from quitkit_ingredients import quitkit_ingredients
 from testimonials import testimonials
 from quitkit_tone_and_rules import tone_and_rules
+from personal_responses import personal_responses
 
 st.set_page_config(page_title="Quit Coach", layout="centered")
 st.title("💬 Quit Coach")
@@ -39,21 +40,6 @@ def detect_theme(text):
     else:
         return "other"
 
-quitkit_overview = """
-Quit Kit is a targeted, three-dose daily supplement regimen designed to support individuals transitioning away from kratom and opioid dependence.
-
-It helps restore balance to the brain and body by:
-- Replenishing neurotransmitters
-- Reducing cravings
-- Stabilizing mood
-- Promoting restorative sleep
-
-Dosing schedule:
-- Morning Dose: Upon waking — energy, cognition, mood
-- Afternoon Dose: 5–6 hours later — stress, cravings, neurotransmitter support
-- Nighttime Dose: 30–60 minutes before bed — relaxation and sleep
-"""
-
 rotating_tips = [
     "Creating a personalized plan to quit",
     "Understanding what's in the Quit Kit",
@@ -69,12 +55,29 @@ rotating_tips = [
     "Learning how to manage withdrawal anxiety"
 ]
 
+quitkit_overview = """
+Quit Kit is a targeted, three-dose daily supplement regimen designed to support individuals transitioning away from kratom and opioid dependence.
+
+It helps restore balance to the brain and body by:
+- Replenishing neurotransmitters
+- Reducing cravings
+- Stabilizing mood
+- Promoting restorative sleep
+
+Dosing schedule:
+- Morning Dose: Upon waking — energy, cognition, mood
+- Afternoon Dose: 5–6 hours later — stress, cravings, neurotransmitter support
+- Nighttime Dose: 30–60 minutes before bed — relaxation and sleep
+"""
+
 if "messages" not in st.session_state:
     selected_testimonials = "\n".join(random.sample(testimonials, 3))
     welcome_tips = random.sample(rotating_tips, 4)
     system_prompt = f"""
 You are Quit Coach, a supportive, grounded chatbot trained by the creator of the Quit Kit.
 You focus on kratom and opioid withdrawal. You blend grounded encouragement with CBT structure and positive psychology.
+
+Use the full `personal_responses.py` module to respond to relevant user concerns. When a user expresses one of the 21 recorded concerns, use Matt's original response exactly as written. Do not rewrite, summarize, or paraphrase.
 
 Here are your tone and behavior rules:
 {tone_and_rules}
@@ -104,12 +107,7 @@ If someone asks about ingredients, always show the full list.
 If someone asks about shipping, note that economy shipping is free and expedited options are available.
 If someone asks if Quit Kit will work for them, mention it comes with a money-back guarantee.
 If someone asks about mixing Quit Kit with medications, check for serious interactions first. If none are known, state that and gently suggest checking with a doctor.
-
-For every problem a user brings up, build rapport before giving advice.
-Ask questions to understand how the issue is impacting them.
-Keep your replies short to encourage continued engagement.
-Ask what they've tried in the past, whether it worked, and what outcome they want.
-Use their answers to work toward a fully personalized plan.
+Only reference exact, unedited testimonials from testimonials.py. Do not paraphrase, reword, or create fictional testimonials.
 """
     st.session_state["messages"] = [{"role": "system", "content": system_prompt}]
     st.session_state["last_prompt"] = ""
@@ -118,6 +116,12 @@ Use their answers to work toward a fully personalized plan.
     st.session_state["messages"].append({
         "role": "assistant",
         "content": f"""Hey there - I'm Quit Coach, here to support you every step of the way.
+
+This is a completely private, one-on-one interaction. No personal data is saved or sent to third parties.
+
+You're here with me to create a plan that works for you — not a generic list. We'll figure it out together, step by step.
+
+If you're on your phone and don't want to type, go ahead and use voice-to-text. Whatever makes it easier.
 
 Here are a few things I can help with:
 - {welcome_tips[0]}
