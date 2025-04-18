@@ -56,7 +56,7 @@ Dosing schedule:
 if "messages" not in st.session_state:
     # Select a few testimonials to share in the system prompt
     selected_testimonials = "\n".join(random.sample(testimonials, 3))
-    
+
     system_prompt = f"""
 You are Quit Coach, a supportive, grounded chatbot trained by the creator of the Quit Kit.
 {behavior_rules}
@@ -77,8 +77,12 @@ Always begin by asking about the user's specific experience before offering any 
     st.session_state["messages"].append({
         "role": "assistant", "content": (
             "Hey there — I’m Quit Coach, here to support you every step of the way.\n\n"
-            "Before we dive in, I'd love to learn a bit more about you. What's your experience been like so far? "
-            "Tell me about what you're facing: cravings, sleep issues, motivation, or anything else."
+            "Here are a few things I can help with:\n"
+            "- Creating a personalized plan to quit\n"
+            "- Understanding what's in the Quit Kit and how it works\n"
+            "- Making a tapering strategy that fits your life\n"
+            "- Supporting you through cravings, sleep issues, or doubt\n\n"
+            "To get started, can you tell me what substance you're trying to quit?"
         )
     })
 
@@ -101,7 +105,7 @@ for i, msg in enumerate(st.session_state["messages"]):
                         with open(LOG_FILE, "a", newline="") as f:
                             writer = csv.writer(f)
                             writer.writerow([datetime.now(), st.session_state["last_prompt"], st.session_state["last_reply"], "no", ""])
-                        st.warning("Thanks — we’ll learn from this.")
+                        st.warning("Thanks — we'll learn from this.")
 
 # Handle user input
 if prompt := st.chat_input("How can I support you today?"):
