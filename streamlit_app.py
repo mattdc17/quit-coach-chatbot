@@ -9,7 +9,7 @@ from quitkit_ingredients import quitkit_ingredients
 from testimonials import testimonials
 
 st.set_page_config(page_title="Quit Coach v1.5.8", layout="centered")
-st.title("💬 Quit Coach v1.5.8 — now includes rule enforcement for rapport + full ingredient disclosure")
+st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
