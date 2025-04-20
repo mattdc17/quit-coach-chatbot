@@ -7,14 +7,14 @@ from datetime import datetime
 from quitkit_ingredients import quitkit_ingredients
 from testimonials import testimonials
 
+# Load ACT craving guide content from .txt file
+with open("quit_coach_act_craving_protocol.txt", "r") as f:
+    act_craving_protocol = f.read()
+
 st.set_page_config(page_title="Quit Coach v1.5.8", layout="centered")
 st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
-
-# Load ACT Craving Guide from text file
-with open("QuitCoach_ACT_Craving_Guide_v2.txt", "r") as file:
-    act_craving_reference = file.read().strip()
 
 # CSV file to store feedback
 LOG_FILE = "quit_coach_feedback_log_v1.5.8.csv"
@@ -123,26 +123,20 @@ if prompt := st.chat_input("How can I support you today?"):
     with st.spinner("Thinking..."):
         try:
             if any(word in prompt.lower() for word in ["craving", "urge", "want to use"]):
-                reply = (
-                    "You're not alone in this. We're going to walk through a craving using ACT.\n\n"
-                    + act_craving_reference[:3000] + "\n\nWant me to log this as a win or send you a reminder next time?"
-                )
+                preframe = "Sounds like you're facing a tough moment. Let's slow things down and walk through it together."
+                steps = act_craving_protocol.strip().split("---")
+                response_plan = steps[0].split("🧭 Master Craving Flow (Default)")[-1].strip()
+                reply = preframe + "\n\n" + response_plan.split("⚡ Variant:")[0].strip() + "\n\nWhat feels like the next best move for you right now?"
             else:
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=st.session_state["messages"],
-                    temperature=0.85,
+                    temperature=0.8,
                 )
-                raw_reply = response.choices[0].message["content"]
-                if not raw_reply.strip().endswith('?'):
-                    reply = raw_reply.strip() + "\n\nWhat else can you tell me about your experience so far?"
-                else:
-                    reply = raw_reply.strip() + "\n\nCan you tell me more about that?"
+                reply = response.choices[0].message["content"].strip() + "\n\nCan you tell me more about that?"
         except Exception as e:
             reply = f"Something went wrong: {str(e)}"
 
     st.session_state["last_reply"] = reply
     st.chat_message("assistant").markdown(reply)
     st.session_state["messages"].append({"role": "assistant", "content": reply})
-
-    
