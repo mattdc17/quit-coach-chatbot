@@ -66,6 +66,36 @@ act_craving_stages = {
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
+    # Load 3 random support topics from external file
+    with open("quit_coach_support_topics.txt", "r") as f:
+        all_topics = f.read().splitlines()
+    selected_topics = random.sample(all_topics, 3)
+    formatted_topics = "\n".join(f"- {topic}" for topic in selected_topics)
+
+    # Add assistant greeting
+    st.session_state["messages"].append({
+        "role": "assistant",
+        "content": (
+            "Hey there — I’m Quit Coach. I’m here to help you through the toughest parts of quitting, especially the stuff that no one else seems to understand.\n\n"
+            "Whether you're feeling stuck, overwhelmed, or just tired of trying to do it alone — I'm here to help.\n\n"
+            "Here are a few things I can help with today:\n"
+            f"{formatted_topics}\n\n"
+            "To get started, can you tell me what substance you’re currently struggling with?"
+        )
+    })
+
+
+    st.session_state["messages"].append({
+        "role": "assistant",
+        "content": (
+            "Hey there — I’m Quit Coach, here to support you every step of the way.\n\n"
+            "Here are a few things I can help with:\n" + topic_text + "\n\n" +
+            "- Talking to your partner about quitting\n- Staying strong when friends are using\n- Finding your motivation again\n\n"
+            "To get started, can you tell me what substance you're trying to quit?"
+        )
+    })
+
+
     st.session_state["messages"].append({
         "role": "assistant",
         "content": (
