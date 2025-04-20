@@ -1,0 +1,90 @@
+
+Quit Coach ACT Craving Protocol: Reference for Chatbot Planning
+
+This document serves as the master ACT-based craving protocol to be referenced whenever a Quit Coach user indicates they are experiencing a craving. The goal is not to eliminate cravings, but to guide the user through a moment of discomfort using the principles of Acceptance and Commitment Therapy (ACT): Be present, open up, do what matters.
+
+---
+
+🧭 Master Craving Flow (Default)
+
+Preframe (Step 0: Orientation)
+"Thanks for reaching out — you’re not alone in this. Right now we’re going to walk step-by-step through a craving support process. It’s custom-built to help you handle urges in a new way — not by fighting them, but by walking through them with purpose. You ready?"
+
+Step 1: Be Present (Grounding)
+- Sound Safari
+- Object Zoom-In
+- Body Scan
+
+Step 2: Watch Your Thinking (Defusion)
+- Name the Thought
+- TV Screen Visual
+- Cartoon Voice
+
+Step 3: Open Up (Acceptance)
+- Urge as a Wave
+- Craving as Ice Cube
+- Hands Near Flame
+
+Step 4: You Are Not the Craving (Self-as-Context)
+- Satellite View
+- Sky & Weather
+- Observer Voice
+
+Step 5: Know What Matters (Values Reconnection)
+- Future Flash
+- Two Roads
+- Who You’re Doing This For
+
+Step 6: Do What It Takes (Committed Action)
+- Quit Kit Dose
+- Step Outside & Breathe
+- Say It Out Loud
+- Touch Something Real
+
+---
+
+⚡ Variant: Panic
+
+Preframe: “Sounds like panic is setting in. Let’s slow everything down and move through this together.”
+
+- Grounding: “Put your hand on your chest. Feel it rise and fall.”
+- Defusion: “Say silently: ‘I’m having the thought that this will never stop.’ Let it echo — then watch it fade.”
+- Acceptance: “This panic is energy. You can let it burn without letting it spread.”
+- Self-as-Context: “You’re the mountain. Panic is a storm — but storms pass.”
+- Values: “What matters enough that you’d walk through this storm?”
+- Action: “Stand up slowly. Stretch. Let that be your choice, not the panic.”
+
+---
+
+💤 Variant: Boredom
+
+Preframe: “Boredom’s sneaky — it feels empty, but it’s often craving in disguise. Let’s interrupt it with something real.”
+
+- Grounding: “Look around. Name three things you’ve never noticed before in this room.”
+- Defusion: “Notice the thought: ‘I need something.’ Let’s not obey it — just see it.”
+- Acceptance: “Boredom is just stillness your mind doesn’t know how to sit with yet.”
+- Self-as-Context: “This moment doesn’t define you — it’s just passing through.”
+- Values: “Would your free, future self trade peace for this quick fix?”
+- Action: “Stand up. Touch a wall. Take one deep breath and say, ‘This moment is mine.’”
+
+---
+
+🖤 Variant: Grief or Sadness
+
+Preframe: “This pain means something mattered. Let’s honor that — not escape it.”
+
+- Grounding: “Place your hand on your heart. Breathe into that space. Stay with it.”
+- Defusion: “The thought might be: ‘This will never end.’ See it on a cloud. Let it drift by.”
+- Acceptance: “You don’t need to fix grief. You just need to make room for it.”
+- Self-as-Context: “Even through pain, you are the one observing. That self is still whole.”
+- Values: “This pain points to love. What would love do in this moment?”
+- Action: “Sit up. Speak one truth aloud — even just, ‘This hurts.’ That’s your strength.”
+
+---
+
+Closing for all flows:
+“You didn’t fight the craving. You chose through it. That’s how real change happens — breath by breath, step by step.”
+
+Follow with:
+- “Want me to log this as a win for you?”
+- “Want a reminder of this plan next time the craving hits?”

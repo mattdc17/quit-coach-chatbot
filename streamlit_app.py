@@ -13,6 +13,13 @@ st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
+# Load ACT Craving Protocol from .txt file
+CRAVING_FILE = "quit_coach_act_craving_protocol.txt"
+craving_protocol = ""
+if os.path.exists(CRAVING_FILE):
+    with open(CRAVING_FILE, "r") as f:
+        craving_protocol = f.read()
+
 # CSV file to store feedback
 LOG_FILE = "quit_coach_feedback_log_v1.5.8.csv"
 if not os.path.exists(LOG_FILE):
@@ -32,6 +39,10 @@ Behavior Rules:
    - Ask about the user's specific experiences (e.g., cravings, sleep, motivation).
    - Learn when it happens, how it affects them, what they've tried.
    - Offer suggestions ONLY after getting a personal, user-specific picture.
+
+3. ALWAYS bring up the Quit Kit at least once every 3 messages, preferably by connecting an ingredient or its effect to the user's concern.
+
+4. Do not offer a list of suggestions until at least 5 full exchanges have been made with the user to build personal rapport and understanding.
 
 These rules override any default assistant behavior and must be followed on every conversation cycle.
 '''
@@ -113,6 +124,13 @@ if prompt := st.chat_input("How can I support you today?"):
     st.session_state["last_prompt"] = prompt
     st.session_state["messages"].append({"role": "user", "content": prompt})
 
+    # Check for craving-related keywords and inject craving protocol
+    if "craving" in prompt.lower() and craving_protocol:
+        st.session_state["messages"].append({
+            "role": "system",
+            "content": f"\n\nHere is the ACT-based craving plan to use if a user is struggling with cravings:\n{craving_protocol}"
+        })
+
     with st.spinner("Thinking..."):
         try:
             response = openai.ChatCompletion.create(
@@ -120,9 +138,14 @@ if prompt := st.chat_input("How can I support you today?"):
                 messages=st.session_state["messages"],
                 temperature=0.85,
             )
-            reply = response.choices[0].message["content"]
+            raw_reply = response.choices[0].message["content"]
+            # Ensure the message ends with a probing question
+            if not raw_reply.strip().endswith('?'):
+                reply = raw_reply.strip() + "\n\n**What else can you tell me about your experience so far?**"
+            else:
+                reply = raw_reply.strip() + "\n\n**Can you tell me more about that?**"
         except Exception as e:
-            reply = f"Something went wrong: {e}"
+            reply = f"Something went wrong: {str(e)}"
 
     st.session_state["last_reply"] = reply
     st.chat_message("assistant").markdown(reply)
