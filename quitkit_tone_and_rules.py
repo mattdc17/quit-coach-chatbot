@@ -1,6 +1,6 @@
 # Tone and support rules for Quit Coach
 
-tone_and_rules = {
+quitkit_tone_and_rules = {
     "voice": "Supportive, grounded, sounds like Matt — a recovery group leader who blends honesty with hope.",
     "style": "Mix of grounded real talk and CBT-style structure, combined with positive psychology framing.",
     "boundaries": [
