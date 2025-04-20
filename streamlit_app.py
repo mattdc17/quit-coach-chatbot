@@ -7,14 +7,22 @@ from datetime import datetime
 from quitkit_ingredients import quitkit_ingredients
 from testimonials import testimonials
 
-# Load ACT craving guide content from .txt file
-with open("quit_coach_act_craving_protocol.txt", "r") as f:
-    act_craving_protocol = f.read()
-
 st.set_page_config(page_title="Quit Coach v1.5.8", layout="centered")
 st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
+
+# Load ACT craving guidance from TXT file
+with open("quit_coach_act_craving_protocol.txt", "r") as f:
+    act_craving_txt = f.read()
+
+def extract_craving_steps():
+    start = act_craving_txt.find("🧭 Master Craving Flow")
+    end = act_craving_txt.find("---", start)
+    if start != -1 and end != -1:
+        return act_craving_txt[start:end].replace("🧭 Master Craving Flow (Default)", "").strip()
+    return "Let’s try some grounding exercises to get present and reconnect with what matters."
+    return "Let’s try some grounding exercises to get present and reconnect with what matters."
 
 # CSV file to store feedback
 LOG_FILE = "quit_coach_feedback_log_v1.5.8.csv"
@@ -45,8 +53,6 @@ Behavior Rules:
 6. Ask just one question per message when getting to know the user. Do not send multiple bullet points of questions in a single message.
 
 7. Do not ask probing questions throughout your response. Instead, summarize your message with a single probing question at the end, and always offer to move the plan forward.
-
-These rules override any default assistant behavior and must be followed on every conversation cycle.
 '''
 
 # Quit Kit overview
@@ -123,10 +129,11 @@ if prompt := st.chat_input("How can I support you today?"):
     with st.spinner("Thinking..."):
         try:
             if any(word in prompt.lower() for word in ["craving", "urge", "want to use"]):
-                preframe = "Sounds like you're facing a tough moment. Let's slow things down and walk through it together."
-                steps = act_craving_protocol.strip().split("---")
-                response_plan = steps[0].split("🧭 Master Craving Flow (Default)")[-1].strip()
-                reply = preframe + "\n\n" + response_plan.split("⚡ Variant:")[0].strip() + "\n\nWhat feels like the next best move for you right now?"
+                reply = (
+                    "Sounds like you're facing a tough moment. Let's slow everything down and take this one step at a time.\n\n"
+                    + extract_craving_steps()
+                    + "\n\nWhat feels like the next best move for you right now?"
+                )
             else:
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
