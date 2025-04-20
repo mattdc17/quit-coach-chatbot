@@ -84,6 +84,30 @@ if "messages" not in st.session_state:
         )
     })
 
+
+    st.session_state["messages"].append({
+        "role": "assistant",
+        "content": (
+            "Hey there — I’m Quit Coach, here to support you every step of the way.\n\n"
+            "Here are a few things I can help with:\n" + topic_text + "\n\n" +
+            "- Talking to your partner about quitting\n- Staying strong when friends are using\n- Finding your motivation again\n\n"
+            "To get started, can you tell me what substance you're trying to quit?"
+        )
+    })
+
+
+    st.session_state["messages"].append({
+        "role": "assistant",
+        "content": (
+            "Here are a few things I can help with:\n" + topic_text + "\n\n" +
+            "- Creating a personalized plan to quit\n"
+            "- Understanding what's in the Quit Kit and how it works\n"
+            "- Making a tapering strategy that fits your life\n"
+            "- Supporting you through cravings, sleep issues, or doubt\n\n"
+            "To get started, can you tell me what substance you're trying to quit?"
+        )
+    })
+
     st.session_state["craving_stage"] = None
 
 # Display all messages
@@ -129,12 +153,16 @@ if prompt := st.chat_input("How can I support you today?"):
                 st.session_state["craving_stage"] = "stage_1"
                 reply = act_craving_stages["stage_1"]["prompt"]
             else:
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=st.session_state["messages"],
-                    temperature=0.8,
-                )
-                reply = response.choices[0].message["content"].strip() + "\n\nCan you tell me more about that?"
+                if len([m for m in st.session_state["messages"] if m["role"] == "user"]) < 5:
+                    reply = "Thanks for sharing that. I'd like to understand you a bit more before offering advice. Can you tell me a bit more about how this has been affecting your life?"
+                else:
+                    response = openai.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        messages=st.session_state["messages"],
+                        temperature=0.8,
+                        max_tokens=300,
+                    )
+                    reply = response.choices[0].message["content"].strip()
         except Exception as e:
             reply = f"Something went wrong: {str(e)}"
 
