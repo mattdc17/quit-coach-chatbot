@@ -4,8 +4,6 @@ import random
 import csv
 import os
 from datetime import datetime
-from docx import Document
-
 from quitkit_ingredients import quitkit_ingredients
 from testimonials import testimonials
 
@@ -14,16 +12,9 @@ st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
-# Load ACT Craving Guide from Word doc
-def load_act_craving_guide():
-    doc = Document("QuitCoach_ACT_Craving_Guide_v2.docx")
-    content = []
-    for para in doc.paragraphs:
-        if para.text.strip():
-            content.append(para.text.strip())
-    return "\n\n".join(content)
-
-act_craving_reference = load_act_craving_guide()
+# Load ACT Craving Guide from text file
+with open("QuitCoach_ACT_Craving_Guide_v2.txt", "r") as file:
+    act_craving_reference = file.read().strip()
 
 # CSV file to store feedback
 LOG_FILE = "quit_coach_feedback_log_v1.5.8.csv"
@@ -154,12 +145,4 @@ if prompt := st.chat_input("How can I support you today?"):
     st.chat_message("assistant").markdown(reply)
     st.session_state["messages"].append({"role": "assistant", "content": reply})
 
-# Optional: show ACT doc reference in sidebar
-with st.sidebar:
-    st.subheader("📄 ACT Craving Guide")
-    st.download_button(
-        label="Download Full Guide (.docx)",
-        data=open("QuitCoach_ACT_Craving_Guide_v2.docx", "rb").read(),
-        file_name="QuitCoach_ACT_Craving_Guide_v2.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+    
