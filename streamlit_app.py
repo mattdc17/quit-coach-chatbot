@@ -44,7 +44,7 @@ Behavior Rules:
 
 4. Do not offer a list of suggestions until at least 5 full exchanges have been made with the user to build personal rapport and understanding.
 
-These rules override any default assistant behavior and must be followed on every conversation cycle.
+5. All chatbot replies should end with a natural follow-up question that keeps the conversation going, based on what the user just shared. Avoid repetition and bold formatting.
 '''
 
 # Quit Kit overview
@@ -65,7 +65,6 @@ Dosing schedule:
 
 # Initialize chat state
 if "messages" not in st.session_state:
-    # Select a few testimonials to share in the system prompt
     selected_testimonials = "\n".join(random.sample(testimonials, 3))
 
     system_prompt = f"""
@@ -84,7 +83,6 @@ Always begin by asking about the user's specific experience before offering any 
     st.session_state["last_prompt"] = ""
     st.session_state["last_reply"] = ""
 
-    # Welcome message
     st.session_state["messages"].append({
         "role": "assistant", "content": (
             "Hey there — I’m Quit Coach, here to support you every step of the way.\n\n"
@@ -101,7 +99,6 @@ Always begin by asking about the user's specific experience before offering any 
 for i, msg in enumerate(st.session_state["messages"]):
     if msg["role"] != "system":
         st.chat_message(msg["role"]).markdown(msg["content"])
-        # feedback expander
         if msg["role"] == "assistant" and i == len(st.session_state["messages"]) - 1:
             with st.expander("Was this helpful?"):
                 col1, col2 = st.columns(2)
@@ -124,7 +121,6 @@ if prompt := st.chat_input("How can I support you today?"):
     st.session_state["last_prompt"] = prompt
     st.session_state["messages"].append({"role": "user", "content": prompt})
 
-    # Check for craving-related keywords and inject craving protocol
     if "craving" in prompt.lower() and craving_protocol:
         st.session_state["messages"].append({
             "role": "system",
@@ -139,11 +135,7 @@ if prompt := st.chat_input("How can I support you today?"):
                 temperature=0.85,
             )
             raw_reply = response.choices[0].message["content"]
-            # Ensure the message ends with a probing question
-            if not raw_reply.strip().endswith('?'):
-                reply = raw_reply.strip() + "\n\n**What else can you tell me about your experience so far?**"
-            else:
-                reply = raw_reply.strip() + "\n\n**Can you tell me more about that?**"
+            reply = raw_reply.strip()  # No more hardcoded probing questions
         except Exception as e:
             reply = f"Something went wrong: {str(e)}"
 
