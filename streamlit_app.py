@@ -1,25 +1,22 @@
+
 import streamlit as st
 import openai
 import random
 import csv
 import os
 from datetime import datetime
+
+from kratom_book import kratom_book
+from personal_responses import personal_responses
 from quitkit_ingredients import quitkit_ingredients
 from testimonials import testimonials
+from quitkit_tone_and_rules import quitkit_tone_and_rules
+from quitcoach_behavior_rules import behavior_rules
 
 st.set_page_config(page_title="Quit Coach v1.5.8", layout="centered")
 st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
-
-# Load random topics from TXT
-def get_intro_topics():
-    try:
-        with open("quit_coach_intro_topics.txt", "r") as f:
-            topics = [line.strip() for line in f if line.strip()]
-            return random.sample(topics, 3)
-    except Exception:
-        return ["Managing cravings", "Improving sleep", "Making a taper plan"]
 
 # CSV file to store feedback
 LOG_FILE = "quit_coach_feedback_log_v1.5.8.csv"
@@ -28,76 +25,62 @@ if not os.path.exists(LOG_FILE):
         writer = csv.writer(f)
         writer.writerow(["timestamp", "user_message", "bot_reply", "thumb", "theme"])
 
-# Behavior rules
-behavior_rules = """
-Behavior Rules:
-1. ALWAYS list the full ingredient breakdown when a user asks:
-   - "What's in the Quit Kit?"
-   - "What's in the morning dose?", "What's in the afternoon dose?", "What's in the nighttime dose?"
-   -> Pull full lists from quitkit_ingredients.py and show the full breakdown without summarizing.
+# Support topics
+with open("quit_coach_support_topics.txt") as f:
+    all_topics = [line.strip() for line in f.readlines() if line.strip()]
 
-2. NEVER offer suggestions or plans until you\'ve built rapport.
-   - Ask about the user\'s specific experiences (e.g., cravings, sleep, motivation).
-   - Learn when it happens, how it affects them, what they\'ve tried.
-   - Offer suggestions ONLY after getting a personal, user-specific picture.
-
-3. ALWAYS bring up the Quit Kit at least once every 3 messages, preferably by connecting an ingredient or its effect to the user\'s concern.
-
-4. Do not offer a list of suggestions until at least 5 full exchanges have been made with the user to build personal rapport and understanding.
-
-5. Only reference an individual dose of the Quit Kit once or twice per session. Avoid emphasizing individual bottles or ingredients in isolation — always bring the conversation back to the full 3-dose Quit Kit experience.
-
-6. Ask just one question per message when getting to know the user. Do not send multiple bullet points of questions in a single message.
-
-7. Do not ask probing questions throughout your response. Instead, summarize your message with a single probing question at the end, and always offer to move the plan forward.
-"""
-
-quitkit_overview = """
-Quit Kit is a targeted, three-dose daily supplement regimen designed to support individuals transitioning away from kratom and opioid dependence.
-
-It helps restore balance to the brain and body by:
-- Replenishing neurotransmitters
-- Reducing cravings
-- Stabilizing mood
-- Promoting restorative sleep
-
-Dosing schedule:
-- Morning Dose: Upon waking — energy, cognition, mood
-- Afternoon Dose: 5–6 hours later — stress, cravings, neurotransmitter support
-- Nighttime Dose: 30–60 minutes before bed — relaxation and sleep
-"""
-
-if "messages" not in st.session_state:
-    selected_testimonials = "\n".join(random.sample(testimonials, 3))
-    intro_topics = get_intro_topics()
-    example_support = "\n".join([f"- {topic}" for topic in intro_topics])
-    greeting = (
-        "Hey there — I’m Quit Coach. I’m here to help you through the toughest parts of quitting, "
-        "especially the stuff that no one else seems to understand.\n\n"
-        "Whether you\'re feeling stuck, overwhelmed, or just tired of trying to do it alone — I'm here to help.\n\n"
-        "Here are a few things I can help with today:\n"
-        f"{example_support}\n\n"
-        "To get started, can you tell me what substance you\'re currently struggling with?"
-    )
-
-    system_prompt = f"""
+# Compose system prompt
+system_prompt = f"""
 You are Quit Coach, a supportive, grounded chatbot trained by the creator of the Quit Kit.
+
 {behavior_rules}
-{quitkit_overview}
+
+{quitkit_tone_and_rules}
+
 Here is the verified ingredient list by dose in full:
 {quitkit_ingredients}
-Here are real, unedited testimonials:
-{selected_testimonials}
 
-Always begin by asking about the user\'s specific experience before offering any advice or planning.
+Here are real, unedited testimonials:
+{testimonials}
+
+Here are personal emotional support responses:
+{personal_responses}
+
+Here are longform insights from the creator's own journey:
+{kratom_book}
+
+Always begin by asking about the user's specific experience before offering any advice or planning.
 """
 
+# Load support intro topics
+intro_topics = random.sample(all_topics, 3)
+
+if "messages" not in st.session_state:
     st.session_state["messages"] = [{"role": "system", "content": system_prompt}]
-    st.session_state["messages"].append({"role": "assistant", "content": greeting})
     st.session_state["last_prompt"] = ""
     st.session_state["last_reply"] = ""
+    st.session_state["messages"].append({
+        "role": "assistant",
+        "content": (
+            "Hey there — I’m Quit Coach. I’m here to help you through the toughest parts of quitting, "
+            "especially the stuff that no one else seems to understand.
 
-# Display chat
+"
+            "Whether you're feeling stuck, overwhelmed, or just tired of trying to do it alone — I'm here to help.
+
+"
+            "Here are a few things I can help with today:
+"
+            f"- {intro_topics[0]}
+- {intro_topics[1]}
+- {intro_topics[2]}
+
+"
+            "To get started, can you tell me what substance you’re currently struggling with?"
+        )
+    })
+
+# Display messages
 for i, msg in enumerate(st.session_state["messages"]):
     if msg["role"] != "system":
         st.chat_message(msg["role"]).markdown(msg["content"])
@@ -117,19 +100,93 @@ for i, msg in enumerate(st.session_state["messages"]):
                             writer.writerow([datetime.now(), st.session_state["last_prompt"], st.session_state["last_reply"], "no", ""])
                         st.warning("Thanks — we'll learn from this.")
 
-if prompt := st.chat_input("How can I support you today?"):
+# Craving protocol logic
+if "craving_stage" in st.session_state:
+    stage = st.session_state["craving_stage"]
+    user_input = st.session_state["last_prompt"].lower()
+
+    if stage == "stage_1":
+        st.session_state["craving_trigger"] = user_input
+        st.session_state["craving_stage"] = "stage_2"
+        reply = (
+            "Thanks for sharing that. Let’s ground ourselves for a moment. "
+            "What’s one thing you can see, one thing you can hear, and one thing you can physically feel right now?"
+        )
+
+    elif stage == "stage_2":
+        st.session_state["craving_grounding"] = user_input
+        st.session_state["craving_stage"] = "stage_3"
+        reply = (
+            "Great. Now notice what thought is riding alongside this craving. "
+            "Try silently saying, 'I'm having the thought that…' and finish the sentence. What thought came up?"
+        )
+
+    elif stage == "stage_3":
+        st.session_state["craving_defusion"] = user_input
+        st.session_state["craving_stage"] = "stage_4"
+        reply = (
+            "You’re doing really well. Now let’s open up to the craving instead of fighting it. "
+            "Where do you feel it in your body?"
+        )
+
+    elif stage == "stage_4":
+        st.session_state["craving_acceptance"] = user_input
+        st.session_state["craving_stage"] = "stage_5"
+        reply = (
+            "Now let’s connect to what matters to you. "
+            "What are you doing this for? Who or what is on the other side of this quit that makes it worth it?"
+        )
+
+    elif stage == "stage_5":
+        st.session_state["craving_values"] = user_input
+        st.session_state["craving_stage"] = "stage_6"
+        reply = (
+            "Awesome. Let’s take action now. Maybe it's time for your Quit Kit dose, a cold drink, or a walk. "
+            "What small action can you take right now to carry this momentum forward?"
+        )
+
+    elif stage == "stage_6":
+        st.session_state["craving_action"] = user_input
+        st.session_state["craving_stage"] = "feedback"
+        reply = (
+            "You just walked through that craving — breath by breath. That’s the kind of progress that sticks. "
+            "Did this help you get through it?"
+        )
+
+    elif stage == "feedback":
+        if "no" in user_input:
+            st.session_state["craving_stage"] = "stage_2"
+            reply = (
+                "Totally fair. Let's go again — we'll use a different grounding strategy this time. "
+                "Look around and name something in the room you’ve never noticed before."
+            )
+        else:
+            del st.session_state["craving_stage"]
+            reply = (
+                "I’m proud of you. You didn’t run from the craving — you walked through it. "
+                "Each time you do that, you build strength."
+            )
+
+elif prompt := st.chat_input("How can I support you today?"):
     st.chat_message("user").markdown(prompt)
     st.session_state["last_prompt"] = prompt
     st.session_state["messages"].append({"role": "user", "content": prompt})
 
     with st.spinner("Thinking..."):
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=st.session_state["messages"],
-                temperature=0.8,
-            )
-            reply = response.choices[0].message["content"].strip()
+            if any(word in prompt.lower() for word in ["craving", "urge", "want to use"]):
+                st.session_state["craving_stage"] = "stage_1"
+                reply = (
+                    "Cravings can be intense — but they don’t have to control you. "
+                    "Can you tell me when your cravings usually happen?"
+                )
+            else:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=st.session_state["messages"],
+                    temperature=0.8,
+                )
+                reply = response.choices[0].message["content"].strip()
         except Exception as e:
             reply = f"Something went wrong: {str(e)}"
 
