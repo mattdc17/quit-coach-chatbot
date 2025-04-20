@@ -2,7 +2,7 @@
 
 # Enforced rules for Quit Coach behavioral logic
 
-quitcoach_behavior_rules = """
+behavior_rules = """
 1. ALWAYS list the full ingredient breakdown when a user asks:
    - “What’s in the Quit Kit?”
    - “What’s in the morning/afternoon/night dose?”
