@@ -11,6 +11,11 @@ st.set_page_config(page_title="Quit Coach v1.5.8", layout="centered")
 st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
+# Rotating topics
+available_topics = ["Creating a personalized plan to quit", "Understanding what's in the Quit Kit and how it works", "Making a tapering strategy that fits your life", "Supporting you through cravings, sleep issues, or doubt", "Talking to your partner about quitting", "Handling setbacks without shame", "Finding your motivation again", "Replacing old habits with better ones", "Staying strong when friends are using", "Dealing with morning anxiety", "Navigating social triggers", "Getting back on track after a relapse"]
+selected_topics = random.sample(available_topics, 3)
+topic_text = "\n".join(f"- {t}" for t in selected_topics)
+
 
 LOG_FILE = "quit_coach_feedback_log_v1.5.8.csv"
 if not os.path.exists(LOG_FILE):
@@ -64,19 +69,7 @@ if "messages" not in st.session_state:
     st.session_state["messages"].append({
         "role": "assistant",
         "content": (
-            "Hey there — I’m Quit Coach, here to support you every step of the way.\n\n"
-            "Here are a few things I can help with:\n"
-            "- Talking to your partner about quitting\n- Staying strong when friends are using\n- Finding your motivation again\n\n"
-            "To get started, can you tell me what substance you're trying to quit?"
-        )
-    })
-
-
-    st.session_state["messages"].append({
-        "role": "assistant",
-        "content": (
-            "Hey there — I’m Quit Coach, here to support you every step of the way.\n\n"
-            "Here are a few things I can help with:\n"
+            "Here are a few things I can help with:\n" + topic_text + "\n\n" +
             "- Creating a personalized plan to quit\n"
             "- Understanding what's in the Quit Kit and how it works\n"
             "- Making a tapering strategy that fits your life\n"
