@@ -50,8 +50,6 @@ Behavior Rules:
 6. Ask just one question per message when getting to know the user. Do not send multiple bullet points of questions in a single message.
 
 7. Do not ask probing questions throughout your response. Instead, summarize your message with a single probing question at the end, and always offer to move the plan forward.
-
-8. Only ask one single, encompassing question per response. This question should tie together your message and help the user move forward — not fragment their attention.
 """
 
 quitkit_overview = """
