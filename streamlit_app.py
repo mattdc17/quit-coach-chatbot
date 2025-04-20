@@ -12,18 +12,6 @@ st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
-# Load ACT craving guidance from TXT file
-with open("quit_coach_act_craving_protocol.txt", "r") as f:
-    act_craving_txt = f.read()
-
-def extract_craving_steps():
-    start = act_craving_txt.find("🧭 Master Craving Flow")
-    end = act_craving_txt.find("---", start)
-    if start != -1 and end != -1:
-        return act_craving_txt[start:end].replace("🧭 Master Craving Flow (Default)", "").strip()
-    return "Let’s try some grounding exercises to get present and reconnect with what matters."
-    return "Let’s try some grounding exercises to get present and reconnect with what matters."
-
 # CSV file to store feedback
 LOG_FILE = "quit_coach_feedback_log_v1.5.8.csv"
 if not os.path.exists(LOG_FILE):
@@ -120,8 +108,79 @@ for i, msg in enumerate(st.session_state["messages"]):
                             writer.writerow([datetime.now(), st.session_state["last_prompt"], st.session_state["last_reply"], "no", ""])
                         st.warning("Thanks — we'll learn from this.")
 
-# Handle user input
-if prompt := st.chat_input("How can I support you today?"):
+# Craving protocol logic
+if "craving_stage" in st.session_state:
+    stage = st.session_state["craving_stage"]
+    user_input = st.session_state["last_prompt"].lower()
+
+    if stage == "stage_1":
+        st.session_state["craving_trigger"] = user_input
+        st.session_state["craving_stage"] = "stage_2"
+        reply = (
+            "Thanks for that. Let’s start by grounding ourselves."
+            " Slowly take a deep breath. Look around and name three things you see right now."
+            " What are they?"
+        )
+
+    elif stage == "stage_2":
+        st.session_state["craving_grounding"] = user_input
+        st.session_state["craving_stage"] = "stage_3"
+        reply = (
+            "Good. Now let’s notice your thoughts."
+            " If any craving-related thoughts are showing up, try silently saying: 'I'm having the thought that...'"
+
+            "What thought came up for you just now?"
+        )
+
+    elif stage == "stage_3":
+        st.session_state["craving_defusion"] = user_input
+        st.session_state["craving_stage"] = "stage_4"
+        reply = (
+            "You’re doing great. Now instead of trying to fight the craving, let’s allow it to be here for a moment."
+            " Can you describe where you feel it in your body — and what it feels like?"
+        )
+
+    elif stage == "stage_4":
+        st.session_state["craving_acceptance"] = user_input
+        st.session_state["craving_stage"] = "stage_5"
+        reply = (
+            "Okay. Now think about why you're doing this."
+            " What really matters to you that’s bigger than the craving?"
+        )
+
+    elif stage == "stage_5":
+        st.session_state["craving_values"] = user_input
+        st.session_state["craving_stage"] = "stage_6"
+        reply = (
+            "That’s powerful. Now let’s take one small action."
+            " Maybe take your next Quit Kit dose, step outside, or even just say out loud: 'This moment is mine.'"
+            " What’s one action you can take right now to keep moving forward?"
+        )
+
+    elif stage == "stage_6":
+        st.session_state["craving_action"] = user_input
+        st.session_state["craving_stage"] = "feedback"
+        reply = (
+            "You made it through the craving — not by fighting it, but by stepping through it. That’s huge."
+            " Did that help you just now?"
+        )
+
+    elif stage == "feedback":
+        if "no" in user_input:
+            st.session_state["craving_stage"] = "stage_2"
+            reply = (
+                "Thanks for the honesty. Let’s go again with some different steps."
+                " This time we’ll try a new grounding technique. Look around and name something you’ve never noticed before."
+                " What is it?"
+            )
+        else:
+            del st.session_state["craving_stage"]
+            reply = (
+                "That’s amazing. You should be really proud of how you handled that."
+                " Every time you walk through a craving like that, you get stronger."
+            )
+
+elif prompt := st.chat_input("How can I support you today?"):
     st.chat_message("user").markdown(prompt)
     st.session_state["last_prompt"] = prompt
     st.session_state["messages"].append({"role": "user", "content": prompt})
@@ -129,10 +188,10 @@ if prompt := st.chat_input("How can I support you today?"):
     with st.spinner("Thinking..."):
         try:
             if any(word in prompt.lower() for word in ["craving", "urge", "want to use"]):
+                st.session_state["craving_stage"] = "stage_1"
                 reply = (
-                    "Sounds like you're facing a tough moment. Let's slow everything down and take this one step at a time.\n\n"
-                    + extract_craving_steps()
-                    + "\n\nWhat feels like the next best move for you right now?"
+                    "Thanks for opening up. Let’s walk through this together, step by step."
+                    " First, can you tell me when your cravings usually hit — is it at night, during stress, or when you’re bored?"
                 )
             else:
                 response = openai.ChatCompletion.create(
