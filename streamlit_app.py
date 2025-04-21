@@ -5,8 +5,6 @@ import csv
 import os
 from datetime import datetime
 
-
-from testimonials import testimonials
 from quit_coach_support_topics import support_topics
 
 st.set_page_config(page_title="Quit Coach v1.5.8", layout="centered")
@@ -14,18 +12,14 @@ st.title("💬 Quit Coach v1.5.8")
 
 openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
-LOG_FILE = "quit_coach_feedback_log_v1.5.8.csv"
+LOG_FILE = "quit_coach_feedback_log.csv"
 if not os.path.exists(LOG_FILE):
     with open(LOG_FILE, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["timestamp", "user_message", "bot_reply", "thumb", "theme"])
 
-if "messages" not in st.session_state:
-    selected_testimonials = "\n".join(random.sample(testimonials, 3))
-    selected_topics = random.sample(support_topics, 3)
-    topics_display = "\n".join(f"- {t}" for t in selected_topics)
-
-    system_prompt = """
+# Trimmed, token-safe system prompt
+trimmed_system_prompt = """
 You are Quit Coach, a grounded, hopeful recovery assistant built by the creator of the Quit Kit.
 
 TONE:
@@ -49,23 +43,25 @@ Use a grounded, real-talk tone. Reflect empathy, acknowledge struggle, and guide
 Your job is to guide the user through the process of quitting by creating a personalized plan. Start by learning about the person’s substance use, goals, pain points, and fears. Stay connected, supportive, and practical. Offer suggestions only after getting a clear picture of who they are and what they’re struggling with.
 """
 
-
-    st.session_state["messages"] = [{"role": "system", "content": system_prompt}]
+# Initialize chat session
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [{"role": "system", "content": trimmed_system_prompt}]
     st.session_state["last_prompt"] = ""
     st.session_state["last_reply"] = ""
-
+    selected_topics = random.sample(support_topics, 3)
+    topic_list = "\n".join(f"- {t}" for t in selected_topics)
     st.session_state["messages"].append({
         "role": "assistant",
         "content": (
-            "Hey — I’m Quit Coach. I’m here to help you build a real plan to quit — not just talk about it.\n\n"
-            "We’ll start by understanding where you're at, what you're struggling with, and what kind of support you need.\n\n"
+            "Hey — I’m Quit Coach. I’m here to help you build a real plan to quit — one that fits your life.\n\n"
             "Here are a few things I can help with today:\n"
-            f"{topics_display}\n\n"
-            "To begin, what substance are you currently struggling with?"
+            f"{topic_list}\n\n"
+            "To start, what substance are you trying to quit?"
         )
     })
 
-# Display message history
+
+# Display chat history
 for i, msg in enumerate(st.session_state["messages"]):
     if msg["role"] != "system":
         st.chat_message(msg["role"]).markdown(msg["content"])
@@ -76,16 +72,28 @@ for i, msg in enumerate(st.session_state["messages"]):
                     if st.button("👍 Yes", key=f"yes_{i}"):
                         with open(LOG_FILE, "a", newline="") as f:
                             writer = csv.writer(f)
-                            writer.writerow([datetime.now(), st.session_state["last_prompt"], st.session_state["last_reply"], "yes", ""])
+                            writer.writerow([
+                                datetime.now(),
+                                st.session_state["last_prompt"],
+                                st.session_state["last_reply"],
+                                "yes",
+                                ""
+                            ])
                         st.success("Thanks for your feedback!")
                 with col2:
                     if st.button("👎 No", key=f"no_{i}"):
                         with open(LOG_FILE, "a", newline="") as f:
                             writer = csv.writer(f)
-                            writer.writerow([datetime.now(), st.session_state["last_prompt"], st.session_state["last_reply"], "no", ""])
-                        st.warning("Thanks — we'll keep improving.")
+                            writer.writerow([
+                                datetime.now(),
+                                st.session_state["last_prompt"],
+                                st.session_state["last_reply"],
+                                "no",
+                                ""
+                            ])
+                        st.warning("Thanks — we'll learn from this.")
 
-# Handle new input
+# Handle user input
 if prompt := st.chat_input("How can I support you today?"):
     st.chat_message("user").markdown(prompt)
     st.session_state["last_prompt"] = prompt
