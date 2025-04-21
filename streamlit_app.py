@@ -5,12 +5,8 @@ import csv
 import os
 from datetime import datetime
 
-from quitkit_ingredients import quitkit_ingredients
+
 from testimonials import testimonials
-from kratom_book import kratom_book
-from personal_responses import personal_responses
-from quitkit_tone_and_rules import tone_and_rules
-from quitcoach_behavior_rules import quitcoach_behavior_rules
 from quit_coach_support_topics import support_topics
 
 st.set_page_config(page_title="Quit Coach v1.5.8", layout="centered")
